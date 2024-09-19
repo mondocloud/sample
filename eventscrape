@@ -1,0 +1,44 @@
+import requests
+from bs4 import BeautifulSoup
+
+# Function to scrape events from a given URL
+def scrape_events(url):
+    try:
+        # Send a GET request to the URL
+        response = requests.get(url)
+        response.raise_for_status()  # Raise an error for bad responses
+
+        # Parse the HTML content using BeautifulSoup
+        soup = BeautifulSoup(response.text, 'html.parser')
+
+        # Find all event listings (this class name is just an example)
+        events = soup.find_all('div', class_='event-listing')
+
+        # List to store event details
+        event_details = []
+
+        # Extract details for each event
+        for event in events:
+            title = event.find('h2', class_='event-title').text.strip()
+            date = event.find('span', class_='event-date').text.strip()
+            location = event.find('span', class_='event-location').text.strip()
+
+            event_details.append({
+                'title': title,
+                'date': date,
+                'location': location
+            })
+
+        return event_details
+
+    except requests.RequestException as e:
+        print(f"An error occurred: {e}")
+        return []
+
+# URL of the event listing website
+url = 'https://example.com/events'  # Replace with the actual URL
+
+# Call the function and print the event details
+events = scrape_events(url)
+for event in events:
+    print(f"Title: {event['title']}, Date: {event['date']}, Location: {event['location']}")
